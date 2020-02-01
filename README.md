@@ -8,4 +8,4 @@ The New-AzSentinelAnalyticsRulesFromCSV.ps1 will then read that CSV file and cre
 
 ## Resources
 
-Read  [Working with Analytics rules Part 5- Tying it all together] <https://www.garybushey.com/2020/02/01/working-with-analytics-rules-part-5-tying-it-all-together/> for more information
+Read  [Working with Analytics rules Part 5- Tying it all together]<https://www.garybushey.com/2020/02/01/working-with-analytics-rules-part-5-tying-it-all-together/> for more information
