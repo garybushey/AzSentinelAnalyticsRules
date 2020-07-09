@@ -1,4 +1,3 @@
-#requires -version 6.2
 <#
     .SYNOPSIS
         This command will generate a CSV file containing the information about all the Azure Sentinel
@@ -41,8 +40,8 @@ param (
 Function Export-AzSentinelAnalyticsRuleTemplates ($workspaceName, $resourceGroupName, $filename) {
 
     #Setup the header for the file
-    $output = "Selected,Severity,DisplayName,Kind,Name,Description,Tactics,RequiredDataConnectors,RuleFrequency,RulePeriod,RuleThreshold,Status"
-    $output >> $filename
+    #$output = "Selected,Severity,DisplayName,Kind,Name,Description,Tactics,RequiredDataConnectors,RuleFrequency,RulePeriod,RuleThreshold,Status"
+    #$output >> $filename
     
     #Setup the Authentication header needed for the REST calls
     $context = Get-AzContext
@@ -57,7 +56,9 @@ Function Export-AzSentinelAnalyticsRuleTemplates ($workspaceName, $resourceGroup
     $SubscriptionId = (Get-AzContext).Subscription.Id
 
     #Load the templates so that we can copy the information as needed
+    #$url = "https://management.azure.com/subscriptions/$($subscriptionId)/resourceGroups/$($resourceGroupName)/providers/Microsoft.OperationalInsights/workspaces/$($workspaceName)/providers/Microsoft.SecurityInsights/alertruletemplates?api-version=2020-05-01"
     $url = "https://management.azure.com/subscriptions/$($subscriptionId)/resourceGroups/$($resourceGroupName)/providers/Microsoft.OperationalInsights/workspaces/$($workspaceName)/providers/Microsoft.SecurityInsights/alertruletemplates?api-version=2019-01-01-preview"
+	#echo $url
     $results = (Invoke-RestMethod -Method "Get" -Uri $url -Headers $authHeader ).value
 
     foreach ($result in $results) {
@@ -95,12 +96,12 @@ Function Export-AzSentinelAnalyticsRuleTemplates ($workspaceName, $resourceGroup
         $ruleThresholdText = RuleThresholdText -triggerOperator $result.properties.triggerOperator -triggerThreshold $result.properties.triggerThreshold
 
         #Create and output the line of information.
-        $output = "," + $result.properties.severity + "," + $result.properties.displayName + "," + $result.kind + "," + $result.Name 
-        $output += ",""" + $description + """," + $tactics + "," + $requiredDataConnectors + "," + $frequencyText + ","
-        $output += $queryText + "," + $ruleThresholdText + ","
-        $output += $result.properties.status
-        #Probably NOT the most effecient way to do this but it works
-        $output >> $filename
+		$severity = $result.properties.severity
+		$displayName = $result.properties.displayName
+		$kind = $result.kind
+		$name = $result.Name
+		
+		[pscustomobject]@{ Selected =" ";Severity=$severity;DisplayName=$displayName;Kind=$kind;Name=$name;Description=$description;Tactics=$tactics;RequiredDataConnectors=$requiredDataConnectors;RuleFrequency=$frequencyText;RulePeriod=$queryText;RuleThreshold=$ruleThresholdText;Status=$result.properties.status }  | Export-Csv $filename -Append -NoTypeInformation
     }
 }
 
